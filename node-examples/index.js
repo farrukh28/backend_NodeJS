@@ -1,7 +1,4 @@
-var rect = {
-    perimeter: (x, y) => (2 * (x * y)),
-    area: (x, y) => (x * y)
-};
+var rect = require("./rectangle"); // importing file based node_module
 
 function solveRect(l, b) {
     console.log("Solving for rectangle with l = " + l + " and b = " + b);
