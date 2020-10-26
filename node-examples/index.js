@@ -3,13 +3,19 @@ var rect = require("./rectangle"); // importing file based node_module
 function solveRect(l, b) {
     console.log("Solving for rectangle with l = " + l + " and b = " + b);
 
-    if (l <= 0 || b <= 0) {
-        console.log("Rectangle dimensions should be greater than zero.");
-    }
-    else {
-        console.log("The area of the rectangle is " + rect.area(l, b));
-        console.log("The perimeter of rectangle is " + rect.perimeter(l, b));
-    }
+    // supplying callback function
+    rect(l, b, (err, rectangle) => {
+        if (err) {
+            console.log("ERROR: " + err.message);
+        }
+        else {
+            console.log("The area of rectangle is: " + rectangle.area());
+            console.log("The perimeter of rectangle is: " + rectangle.perimeter());
+        }
+    });
+
+    console.log("This statement is after rect function call.")
+
 };
 
 solveRect(2, 4);
