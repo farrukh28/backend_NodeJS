@@ -24,7 +24,7 @@ const server = http.createServer((req, res) => {
         var filePath = path.resolve("./public" + fileUrl);
         var fileExt = path.extname(filePath);
 
-        //handling if HTML file
+        // handling if HTML file
         if (fileExt == ".html") {
             fs.access(filePath, (error) => {
                 if (error) {
