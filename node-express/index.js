@@ -11,9 +11,13 @@ const port = "3000";
 
 
 const dishRouter = require('./routes/dishRouter');
+const promoRouter = require('./routes/promoRouter');
+const leaderRouter = require('./routes/leaderRouter');
 
 // Mouting Router
 app.use("/dishes", dishRouter);
+app.use("/promotions", promoRouter);
+app.use('/leaders', leaderRouter);
 
 
 app.use(morgan('dev')); // Logs HTTP requests on console
