@@ -3,62 +3,22 @@ const http = require('http');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 
+const app = express(); // Creates an Express application
+// Express provdes bunch of methods to make our web server
+
 const hostname = "localhost";
 const port = "3000";
 
 
-const app = express(); // Creates an Express application
-// Express provdes bunch of methods to make our web server
+const dishRouter = require('./routes/dishRouter');
+
+// Mouting Router
+app.use("/dishes", dishRouter);
+
 
 app.use(morgan('dev')); // Logs HTTP requests on console
 app.use(bodyParser.json()); // parses request body message which is in JSON format
 app.use(express.static(__dirname + "/public")); // Public folder will server for HTML files
-
-// ------------------ HANDLING REQUESTS
-
-app.all('/dishes', (req, res, next) => {
-    res.statusCode = 200;
-    res.setHeader("Content-Type", "text/plain");
-    next(); // executes next function matching /dishes endpoint
-});
-
-app.get('/dishes', (req, res, next) => {
-    res.end("We'll send all the dishes to you!");
-});
-
-app.post("/dishes", (req, res, next) => {
-    res.end("Will add the dish: " + req.body.name + " with details: " + req.body.description);
-});
-
-
-app.put("/dishes", (req, res, next) => {
-    res.statusCode = 403;
-    res.end("PUT operation not supported on /dishes.");
-});
-
-app.delete("/dishes", (req, res, next) => {
-    res.end("Deleting all the dishes.");
-});
-//---------------------- REQUEST WITH PARAMETERS
-
-app.get('/dishes/:dishId', (req, res, next) => {
-    res.end("We'll send the dish: " + req.params.dishId + " to you");
-});
-
-app.post("/dishes/:dishID", (req, res, next) => {
-    res.statusCode = 403;
-    res.end("POST operation not supported on /dishes/" + req.params.dishId);
-});
-
-
-app.put("/dishes/:dishId", (req, res, next) => {
-    res.write("Updating the dish: " + req.params.dishId + "\n");
-    res.end("We'll update the dish: " + req.body.name + " with details: " + req.body.description);
-});
-
-app.delete("/dishes/:dishId", (req, res, next) => {
-    res.end("Deleting the dish:" + req.params.dishId);
-});
 
 
 app.use((req, res, next) => {
