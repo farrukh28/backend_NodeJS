@@ -31,7 +31,8 @@ MongoClient.connect(url, (err, client) => {
                 console.log("Updated Document:\n", result.result);
 
                 dboper.findDocment(db, "dishes", (result) => {
-                    console.log("Found documents:\n", docs);
+                    console.log("Found documents:\n", result);
+
                     db.dropCollection("dishes", (err, result) => {
 
                         assert.strictEqual(err, null);
