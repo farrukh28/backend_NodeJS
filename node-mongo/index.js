@@ -1,8 +1,14 @@
 const MongoClient = require("mongodb").MongoClient;
 const assert = require("assert");
 
+const dboper = require('./operations'); // CRUD operations
+
+
+
+//-------------------------------------------------
 const url = "mongodb://127.0.0.1:27017/";
 const dbname = "conFusion";
+//-------------------------------------------------
 
 MongoClient.connect(url, (err, client) => {
 
@@ -12,30 +18,28 @@ MongoClient.connect(url, (err, client) => {
 
     const db = client.db(dbname); // connecting to database
 
-    const collection = db.collection("dishes"); // connecting to dishes
+    dboper.insertDocment(db, { name: "Vandonut", description: "Test" }, "dishes", (result) => {
 
-    // inserting a document
-    collection.insertOne({ "name": "Uthappizza", "description": "test" }, (err, result) => {
+        console.log("Insert Document:\n", result.ops);
 
-        assert.strictEqual(err, null);
+        dboper.findDocment(db, "dishes", (docs) => {
 
-        console.log("After Insert:\n");
-        console.log(result.ops); // result.ops returns documents which are inserted with added "_id" fields
+            console.log("Found documents:\n", docs);
 
-        collection.find({}).toArray((err, docs) => {
+            dboper.updateDocument(db, { name: "Vandonut" }, { description: "Updated Test" }, "dishes", (result) => {
 
-            assert.strictEqual(err, null);
+                console.log("Updated Document:\n", result.result);
 
-            console.log("Found:\n");
-            console.log(docs);
+                dboper.findDocment(db, "dishes", (result) => {
+                    console.log("Found documents:\n", docs);
+                    db.dropCollection("dishes", (err, result) => {
 
-            // deleting collection(table)
-            collection.drop("dishes", (err, res) => {
+                        assert.strictEqual(err, null);
+                        console.log("Dropped Collection:\n", result);
 
-                assert.strictEqual(err, null);
-
-                // closing connection to database
-                client.close();
+                        client.close(); // closing connection to database
+                    });
+                });
             });
         });
     });
