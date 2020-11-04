@@ -1,7 +1,7 @@
 const assert = require('assert');
 
 //-----------------------------------INSERT---------------------------------------------
-exports.insertDocument = (db, document, collection, callback) => {
+exports.insertDocument = (db, document, collection) => {
 
     const coll = db.collection(collection);
 
@@ -10,7 +10,7 @@ exports.insertDocument = (db, document, collection, callback) => {
 
 //--------------------------------------FIND------------------------------------------
 
-exports.findDocuments = (db, collection, callback) => {
+exports.findDocuments = (db, collection) => {
 
     const coll = db.collection(collection);
 
@@ -19,7 +19,7 @@ exports.findDocuments = (db, collection, callback) => {
 
 //--------------------------------------DELETE------------------------------------------
 
-exports.removeDocument = (db, document, collection, callback) => {
+exports.removeDocument = (db, document, collection) => {
 
     const coll = db.collection(collection);
 
@@ -28,7 +28,7 @@ exports.removeDocument = (db, document, collection, callback) => {
 
 //-------------------------------------UPDATE-------------------------------------------
 
-exports.updateDocument = (db, document, update, collection, callback) => {
+exports.updateDocument = (db, document, update, collection) => {
 
     const coll = db.collection(collection);
 

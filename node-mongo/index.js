@@ -13,7 +13,8 @@ const dbname = "conFusion";
 MongoClient.connect(url).then((client) => {
 
     console.log('Connected correctly to server');
-    const db = client.db(dbname);
+
+    const db = client.db(dbname); // connectiong to database
 
     dboper.insertDocument(db, { name: "Vadonut", description: "Test" }, "dishes")
         .then((result) => {
@@ -34,7 +35,7 @@ MongoClient.connect(url).then((client) => {
         .then((docs) => {
             console.log("Found Updated Documents:\n", docs);
 
-            return db.dropCollection("dishes");
+            return db.dropCollection("dishes"); // droping dishes collection
         })
         .then((result) => {
             console.log("Dropped Collection: ", result);
@@ -43,4 +44,4 @@ MongoClient.connect(url).then((client) => {
         })
         .catch((err) => console.log(err));
 })
-    .catch((err) => console.log(err));
+    .catch((err) => console.log(err)); //  captures error when connecting to mongodb server
