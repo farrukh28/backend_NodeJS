@@ -16,10 +16,24 @@ connect.then((db) => {
     })
         .then((dish) => {
             console.log(dish);
-            return Dishes.find({}).exec();
+            return Dishes.findByIdAndUpdate(dish._id, { $set: { description: "Updated Test", } }, {
+                new: true // if true returns updated dishes object
+            }).exec();
         })
-        .then((dishes) => {
-            console.log(dishes);
+        .then((dish) => {
+            console.log(dish);
+            // adding comments to dish
+            dish.comments.push({
+                rating: 5,
+                comment: "It's very tasty. I recommend you to give it a try!!!",
+                author: "Farrukh",
+            });
+
+            return dish.save(); // saves this specific document because we modified it.
+        })
+        .then((dish) => {
+
+            console.log(dish);
             return Dishes.remove({});
         })
         .then(() => {
