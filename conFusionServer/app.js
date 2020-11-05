@@ -12,6 +12,29 @@ var dishRouter = require('./routes/dishRouter');
 var leaderRouter = require('./routes/leaderRouter');
 var promoRouter = require('./routes/promoRouter');
 //-------------------------------------------------
+//----------------- Mounting Routers------------
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+app.use('/dishes', dishRouter);
+app.use('/leaders', leaderRouter);
+app.use('/promotions', promoRouter);
+//----------------------------------------------
+
+//------------------ DATABASE INTERACTIONS-----------------
+var mongoose = require('mongoose');
+
+const url = "mongodb://127.0.0.1:27017/conFusion";
+
+// connecting to DATABASE
+const connect = mongoose.connect(url, { useNewUrlParser: true }); // connecting to database
+
+connect.then((db) => {
+  console.log("Server connected successfully!");
+}, (err) => {
+  console.log(err);
+});
+
+//---------------------------------------------------------
 
 var app = express();
 
@@ -25,13 +48,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-//----------------- Mounting Routers------------
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/dishes', dishRouter);
-app.use('/leaders', leaderRouter);
-app.use('/promotions', promoRouter);
-//----------------------------------------------
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
