@@ -5,6 +5,9 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 
+var app = express(); // making our app to use EXPRESS
+
+
 //-------------- Importing ROUTERS------------------
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -21,8 +24,8 @@ app.use('/promotions', promoRouter);
 //----------------------------------------------
 
 //------------------ DATABASE INTERACTIONS-----------------
-var mongoose = require('mongoose');
 
+var mongoose = require('mongoose');
 const url = "mongodb://127.0.0.1:27017/conFusion";
 
 // connecting to DATABASE
@@ -36,7 +39,6 @@ connect.then((db) => {
 
 //---------------------------------------------------------
 
-var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
