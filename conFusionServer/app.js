@@ -7,6 +7,15 @@ var session = require('express-session');
 var FileStore = require('session-file-store')(session);
 
 
+//-------------- Importing ROUTERS------------------
+var indexRouter = require('./routes/index');
+var usersRouter = require('./routes/users');
+var dishRouter = require('./routes/dishRouter');
+var leaderRouter = require('./routes/leaderRouter');
+var promoRouter = require('./routes/promoRouter');
+//-------------------------------------------------
+
+
 var app = express(); // making our app to use EXPRESS
 
 
@@ -25,69 +34,48 @@ app.use(session({
   secret: "12345-67890-09876-54321",
   saveUninitialized: false,
   resave: false,
-  store: new FileStore()
+  store: new FileStore() // store session information in file instead of memory(default)
 }));
 
+// -----------------Mounting Routers -----------------------------
+// So users can access login/signup page before any authentication
+
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+
+//--------------------------------------------------------
 
 function auth(req, res, next) {
   console.log(req.session); // to see what's included in session
 
   if (req.session.user == null) {
-    var authHeader = req.headers.authorization;
-    if (authHeader == null) {
-      var err = new Error("You are not authenticated!");
-      res.setHeader('WWW-Authenticate', "Basic");
-      err.status = 401;
-      return next(err);
-    }
-    else {
-      // split the "base username:password" to username:password (encoded in base64)
-      // then again split username:password to username and passowrd
-      var auth = new Buffer.from(authHeader.split(" ")[1], 'base64').toString().split(":");
 
-      var username = auth[0];
-      var password = auth[1];
-
-      if (username === 'admin' && password === 'password') {
-        // if user is authenticated set-up session
-        req.session.user = 'admin';
-        next();
-      }
-      else {
-        var err = new Error("You are not authenticated!");
-        res.setHeader('WWW-Authenticate', "Basic");
-        err.status = 401;
-        next(err);
-      }
-    }
+    var err = new Error("You are not authenticated!");
+    res.setHeader('WWW-Authenticate', "Basic");
+    err.status = 403;
+    return next(err);
   }
   else { // check user property in signed-cookie is valid
-    if (req.session.user == 'admin') {
+    if (req.session.user == 'authenticated') {
       next();
     }
     else {
       var err = new Error("You are not authenticated!");
-      err.status = 401;
+      err.status = 403;
       next(err);
     }
-  }
-};
+  };
+}
+
 
 app.use(auth); // Basic Authentication
 
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-//-------------- Importing ROUTERS------------------
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var dishRouter = require('./routes/dishRouter');
-var leaderRouter = require('./routes/leaderRouter');
-var promoRouter = require('./routes/promoRouter');
-//-------------------------------------------------
+
 //----------------- Mounting Routers------------
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+
 app.use('/dishes', dishRouter);
 app.use('/leaders', leaderRouter);
 app.use('/promotions', promoRouter);
