@@ -9,6 +9,9 @@ var passport = require('passport');
 var authenticate = require('./authenticate');
 
 
+var config = require('./config'); // config file containing secretKey and mongoUrl
+
+
 //-------------- Importing ROUTERS------------------
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -28,20 +31,11 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-//app.use(cookieParser('12345-67890-09876-54321')); // signed cookies
-
-// ---------------------- SESSION MIDDLEWARE----------------------
-app.use(session({
-  name: "session-id",
-  secret: "12345-67890-09876-54321",
-  saveUninitialized: false,
-  resave: false,
-  store: new FileStore() // store session information in file instead of memory(default)
-}));
 
 //--------------------- Passport------------------
+
 app.use(passport.initialize());
-app.use(passport.session());
+
 //------------------------------------------------
 
 
@@ -53,23 +47,6 @@ app.use('/users', usersRouter);
 
 //--------------------------------------------------------
 
-function auth(req, res, next) {
-  console.log(req.session); // to see what's included in session
-
-  if (req.user == null) {
-
-    var err = new Error("You are not authenticated!");
-    res.setHeader('WWW-Authenticate', "Basic");
-    err.status = 403;
-    return next(err);
-  }
-  else { // check user property in signed-cookie is valid
-    next();
-  };
-}
-
-
-app.use(auth); // Basic Authentication
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -85,10 +62,11 @@ app.use('/promotions', promoRouter);
 //------------------ DATABASE INTERACTIONS-----------------
 
 var mongoose = require('mongoose');
-const url = "mongodb://127.0.0.1:27017/conFusion";
+const url = config.mongoUrl;
 
 // connecting to DATABASE
-const connect = mongoose.connect(url, { useNewUrlParser: true }); // connecting to database
+mongoose.set('useCreateIndex', true);
+const connect = mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }); // connecting to database
 
 connect.then((db) => {
   console.log("Server connected successfully!");

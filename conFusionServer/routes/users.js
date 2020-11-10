@@ -2,6 +2,7 @@ var express = require('express');
 var userRouter = express.Router();
 var bodyParser = require('body-parser');
 var passport = require('passport');
+var authenticate = require('../authenticate');
 
 userRouter.use(bodyParser.json());
 
@@ -24,7 +25,7 @@ userRouter.route('/')
 
 userRouter.route('/signup')
   .post((req, res, next) => {
-    // register parameter (username, password, callback function)
+    // register(new Users()) -> parameter (username, password, callback function)
     Users.register(new Users({ username: req.body.username }), req.body.password,
       (err, user) => {
         if (err) {
@@ -45,11 +46,16 @@ userRouter.route('/signup')
 
 // users/login (endpoint)
 
-userRouter.route('/login')// expected that username and password is in req.body instead of req.headers.authorization
+userRouter.route('/login')// expects that username and password is in req.body instead of req.headers.authorization
   .post(passport.authenticate('local'), (req, res, next) => {
+
+    // SETTING UP TOKEN for CLIENT (no need of sessions)
+    var token = authenticate.getToken({ _id: req.user._id });
+
+
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
-    res.json({ success: true, status: "You are successfully logged in!" });
+    res.json({ success: true, token: token, status: "You are successfully logged in!" });
   });
 
 
