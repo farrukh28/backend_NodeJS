@@ -3,6 +3,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var mongoose = require('mongoose');
 var session = require('express-session');
 var FileStore = require('session-file-store')(session);
 var passport = require('passport');
@@ -61,7 +62,7 @@ app.use('/promotions', promoRouter);
 
 //------------------ DATABASE INTERACTIONS-----------------
 
-var mongoose = require('mongoose');
+
 const url = config.mongoUrl;
 
 // connecting to DATABASE

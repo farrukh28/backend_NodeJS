@@ -9,6 +9,7 @@ const authenticate = require('../authenticate');
 
 const mongoose = require('mongoose');
 const Dishes = require('../models/dishes');
+const { update } = require('../models/dishes');
 
 //----------------------------------------------------
 
@@ -22,6 +23,7 @@ dishRouter.route('/')
     .get((req, res, next) => {
         // getting dishes
         Dishes.find({})
+            .populate('comments.author') // specify which field to populate
             .then((allDishes) => {
                 res.statusCode = 200;
                 res.setHeader("Content-Type", "application/json");
@@ -63,6 +65,7 @@ dishRouter.route('/:dishId')
     .get((req, res, next) => {
         // getting dish with dishId
         Dishes.findById(req.params.dishId)
+            .populate('comments.author')
             .then((dish) => {
                 res.statusCode = 200;
                 res.setHeader("Content-Type", "application/json");
@@ -100,6 +103,7 @@ dishRouter.route('/:dishId/comments')
     .get((req, res, next) => {
         // getting comments
         Dishes.findById(req.params.dishId)
+            .populate('comments.author')
             .then((dish) => {
                 if (dish != null) {
                     res.statusCode = 200;
@@ -121,12 +125,17 @@ dishRouter.route('/:dishId/comments')
         Dishes.findById(req.params.dishId)
             .then((dish) => {
                 if (dish != null) {
+                    req.body.author = req.user._id; // pushing verified user _id to author field of comments schema
                     dish.comments.push(req.body);
                     dish.save() // will return updated dish
                         .then((updatedDish) => {
-                            res.statusCode = 200;
-                            res.setHeader("Content-Type", "application/json");
-                            res.json(updatedDish);
+                            Dishes.findById(updatedDish._id)
+                                .populate('comments.author') // populate the author, which is a dish send back to the client
+                                .then((populatedDish) => {
+                                    res.statusCode = 200;
+                                    res.setHeader("Content-Type", "application/json");
+                                    res.json(populatedDish);
+                                })
                         }, (err) => next(err));
                 }
                 else {
@@ -173,6 +182,7 @@ dishRouter.route('/:dishId/comments/:commentId')
     .get((req, res, next) => {
         // getting comment with dishId and comment id
         Dishes.findById(req.params.dishId)
+            .populate('comments.author')
             .then((dish) => {
                 if (dish != null && dish.comments.id(req.params.commentId) != null) {
                     res.statusCode = 200;
@@ -210,9 +220,13 @@ dishRouter.route('/:dishId/comments/:commentId')
                     }
                     dish.save()
                         .then((updatedDish) => {
-                            res.statusCode = 200;
-                            res.setHeader("Content-Type", "application/json");
-                            res.json(updatedDish)
+                            Dishes.findById(updatedDish._id)
+                                .populate('comments.author')
+                                .then((populatedDish) => {
+                                    res.statusCode = 200;
+                                    res.setHeader("Content-Type", "application/json");
+                                    res.json(populatedDish);
+                                })
                         }, (err) => next(err));
                 }
                 else if (dish == null) {
@@ -236,9 +250,13 @@ dishRouter.route('/:dishId/comments/:commentId')
                     dish.comments.id(req.params.commentId).remove();
                     dish.save()
                         .then((dish) => {
-                            res.statusCode = 200;
-                            res.setHeader('Content-Type', 'application/json');
-                            res.json(dish);
+                            Dishes.findById(dish._id)
+                                .populate('comments.author')
+                                .then((populatedDish) => {
+                                    res.statusCode = 200;
+                                    res.setHeader("Content-Type", "application/json");
+                                    res.json(populatedDish);
+                                })
                         }, (err) => next(err));
                 }
                 else if (dish == null) {
