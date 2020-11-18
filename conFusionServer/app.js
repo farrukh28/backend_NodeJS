@@ -24,6 +24,20 @@ var promoRouter = require('./routes/promoRouter');
 
 var app = express(); // making our app to use EXPRESS
 
+//------------ Redirect all Requests to HTTPS server------
+
+app.all('*', (req, res, next) => {
+  // if request is from secure connection(https) req.secure will set to be "true"
+  if (req.secure) {
+    return next();
+  }
+  else {
+    res.redirect(307, 'https://' + req.hostname + ':' + app.get('secPort') + req.url);
+  }
+});
+
+//--------------------------------------------------------
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -40,14 +54,6 @@ app.use(passport.initialize());
 //------------------------------------------------
 
 
-// -----------------Mounting Routers -----------------------------
-
-// So users can access login/signup page before any authentication
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-
-//--------------------------------------------------------
-
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -55,6 +61,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //----------------- Mounting Routers------------
 
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
 app.use('/dishes', dishRouter);
 app.use('/leaders', leaderRouter);
 app.use('/promotions', promoRouter);
@@ -70,7 +78,7 @@ mongoose.set('useCreateIndex', true);
 const connect = mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }); // connecting to database
 
 connect.then((db) => {
-  console.log("Server connected successfully!");
+  console.log("Database Server connected successfully!");
 }, (err) => {
   console.log(err);
 });

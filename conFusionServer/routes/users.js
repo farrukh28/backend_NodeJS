@@ -16,8 +16,14 @@ var Users = require('../models/users');
 
 /* GET users listing. */
 userRouter.route('/')
-  .get((req, res, next) => {
-    res.send('respond with a resource');
+  .get(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+    Users.find({})
+      .then((allUsers) => {
+        res.setHeader("Content-Type", "application/json");
+        res.status = 200;
+        res.json(allUsers)
+      }, (err) => next(err))
+      .catch((err) => next(err));
   });
 
 
@@ -72,7 +78,7 @@ userRouter.route('/login')// expects that username and password is in req.body i
 
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
-    res.json({ success: true, token: token, status: "You are successfully logged in!" });
+    res.json({ success: true, token: token, userHeader: req.user, status: "You are successfully logged in!" });
   });
 
 

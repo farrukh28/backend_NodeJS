@@ -13,6 +13,7 @@ const commentSchema = new Schema({
         required: true
     },
     author: {
+        // populating author field with the user who posted the comment
         type: mongoose.Schema.Types.ObjectId,
         ref: 'user' // refrences which collection to be connected (user Collections)
     },

@@ -50,4 +50,20 @@ exports.jwtPassport = passport.use(new JwtStrategy(opts, (jwt_payload, done) => 
 // this method is used to verify authentication in routes where required
 exports.verifyUser = passport.authenticate('jwt', { session: false });
 
+
+// Will check the user has "admin" previliges or not
+exports.verifyAdmin = (req, res, next) => {
+    if (req.user.admin == true) {
+        next();
+    }
+    else {
+        var err = new Error("You are not authorised to perform this action");
+        err.status = 403;
+        next(err);
+    }
+};
+
+
+
+
 // Import this file where authentication is required like in routes
