@@ -19,10 +19,12 @@ var usersRouter = require('./routes/users');
 var dishRouter = require('./routes/dishRouter');
 var leaderRouter = require('./routes/leaderRouter');
 var promoRouter = require('./routes/promoRouter');
+var uploadRouter = require('./routes/uploadRouter');
 //-------------------------------------------------
 
 
 var app = express(); // making our app to use EXPRESS
+
 
 //------------ Redirect all Requests to HTTPS server------
 
@@ -42,12 +44,11 @@ app.all('*', (req, res, next) => {
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
-
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-//--------------------- Passport------------------
+//--------------------- Passport Initialize ------------------
 
 app.use(passport.initialize());
 
@@ -66,6 +67,8 @@ app.use('/users', usersRouter);
 app.use('/dishes', dishRouter);
 app.use('/leaders', leaderRouter);
 app.use('/promotions', promoRouter);
+app.use('/imageUpload', uploadRouter);
+
 //----------------------------------------------
 
 //------------------ DATABASE INTERACTIONS-----------------
