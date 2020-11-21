@@ -21,7 +21,7 @@ passport.deserializeUser(User.deserializeUser());
 
 
 // Generating Token for the valid user
-exports.getToken = function (user) {
+exports.getToken = (user) => {
     return jwt.sign(user, config.secretKey, { expiresIn: 3600 }); // generates a token
 };
 

@@ -6,6 +6,10 @@ var authenticate = require('../authenticate');
 
 userRouter.use(bodyParser.json());
 
+//---------------- CORS ------------------------------
+const cors = require('./cors');
+//----------------------------------------------------
+
 //---------------------DATABASE-------------------------------
 var mongoose = require('mongoose');
 var Users = require('../models/users');
@@ -16,7 +20,7 @@ var Users = require('../models/users');
 
 /* GET users listing. */
 userRouter.route('/')
-  .get(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+  .get(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Users.find({})
       .then((allUsers) => {
         res.setHeader("Content-Type", "application/json");
@@ -30,7 +34,7 @@ userRouter.route('/')
 // users/signup (endpoint)
 
 userRouter.route('/signup')
-  .post((req, res, next) => {
+  .post(cors.corsWithOptions, (req, res, next) => {
     // register(new Users()) -> parameter (username, password, callback function)
     Users.register(new Users({ username: req.body.username }), req.body.password,
       (err, user) => {
@@ -70,7 +74,7 @@ userRouter.route('/signup')
 // users/login (endpoint)
 
 userRouter.route('/login')// expects that username and password is in req.body instead of req.headers.authorization
-  .post(passport.authenticate('local'), (req, res, next) => {
+  .post(cors.corsWithOptions, passport.authenticate('local'), (req, res, next) => {
 
     // SETTING UP TOKEN for CLIENT (no need of sessions)
     var token = authenticate.getToken({ _id: req.user._id });
@@ -85,7 +89,8 @@ userRouter.route('/login')// expects that username and password is in req.body i
 // users/logout (endpoint)
 
 userRouter.route('/logout')
-  .get((req, res, next) => {
+  .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+  .get(cors.cors, (req, res, next) => {
     if (req.session) {
       // removes session from server
       req.session.destroy();
