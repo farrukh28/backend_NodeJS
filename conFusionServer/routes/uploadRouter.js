@@ -21,7 +21,8 @@ const storage = multer.diskStorage({
     },
 
     filename: (req, file, cb) => {
-        cb(null, file.originalname);
+        var Extentsion = file.originalname.split('.')[1];
+        cb(null, req.user.username + "." + Extentsion);
     }
 });
 

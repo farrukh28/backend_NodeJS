@@ -86,6 +86,23 @@ userRouter.route('/login')// expects that username and password is in req.body i
   });
 
 
+
+// facebook loging
+// users/facebook/token (endpoint)
+
+userRouter.route('/facebook/token')
+  .get(passport.authenticate('facebook-token'), (req, res, next) => {
+    // if successfull then passport will load req.user property
+    if (req.user) {
+      // generate token
+      var token = authenticate.getToken({ _id: req.user._id });
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.json({ success: true, token: token, userHeader: req.user, status: "You are successfully logged in through facebook!" })
+    }
+  });
+
+
 // users/logout (endpoint)
 
 userRouter.route('/logout')

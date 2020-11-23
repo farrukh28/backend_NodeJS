@@ -3,6 +3,7 @@ const LocalStrategy = require('passport-local').Strategy; // provides passport-s
 const JwtStrategy = require('passport-jwt').Strategy; // provides JWT-strategy for Local Authentication
 const ExtractJwt = require('passport-jwt').ExtractJwt; // provides a method to extract JSON-Token form request
 const jwt = require('jsonwebtoken');
+const FacebookStrategy = require('passport-facebook-token');
 
 
 const config = require('./config'); // configuration file
@@ -62,6 +63,40 @@ exports.verifyAdmin = (req, res, next) => {
         next(err);
     }
 };
+
+
+// facebook strategy for loging in through facebook
+
+exports.facebookPassport = passport.use(new FacebookStrategy({
+    clientID: config.facebook.clientId,
+    clientSecret: config.facebook.clientSecret,
+}, (accessToken, refreshToken, profile, done) => {
+
+    // checks whether user has already logged in through facebook or not
+    User.findOne({ facebookId: profile.id }, (err, user) => {
+        if (err) { // if any error occurs
+            return done(err, false);
+        }
+        if (!err && user !== null) { // checks whether user already exists or not in database
+            return done(null, user);
+        }
+        else { // if user does not exist in database
+            // username will be in profile.displayName
+            user = new User({ username: profile.displayName });
+            user.facebookId = profile.id;
+            user.firstname = profile.name.givenName;
+            user.lastname = profile.name.familyName;
+            user.save((err, user) => {
+                if (err) {
+                    return done(err, false);
+                }
+                else {
+                    done(null, user);
+                }
+            });
+        }
+    })
+}));
 
 
 
