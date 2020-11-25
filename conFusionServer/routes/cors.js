@@ -5,7 +5,7 @@ const cors = require('cors');
 
 const app = express();
 
-const whitelist = ['http://localhost:3000', 'https://localhost:3443']; // who can access a particular route
+const whitelist = ['http://localhost:3000', 'https://localhost:3443', 'http://Farrukh_Ahmad:3001']; // who can access a particular route
 
 var corsOptionsDelegate = function (req, callback) {
     var corsOptions;

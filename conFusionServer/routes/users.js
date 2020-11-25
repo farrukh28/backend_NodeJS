@@ -16,6 +16,10 @@ var Users = require('../models/users');
 //------------------------------------------------------------
 
 
+userRouter.options('*', cors.corsWithOptions, (req, res) => {
+  res.sendStatus(200);
+})
+
 // users (endpoint)
 
 /* GET users listing. */
@@ -31,7 +35,7 @@ userRouter.route('/')
   });
 
 
-// users/signup (endpoint)
+//! users/signup (endpoint)
 
 userRouter.route('/signup')
   .post(cors.corsWithOptions, (req, res, next) => {
@@ -71,23 +75,87 @@ userRouter.route('/signup')
   });
 
 
-// users/login (endpoint)
+// ! users/login (endpoint)
+/** 
+ * if user fails to authenitcate
+ * passport.authenticate will return "unauthorized"
+ * so, in order to return more meaningful message
+ * we'll call authenticate inside the route
+ * to originate a more meaningful message
+ */
 
 userRouter.route('/login')// expects that username and password is in req.body instead of req.headers.authorization
-  .post(cors.corsWithOptions, passport.authenticate('local'), (req, res, next) => {
+  .post(cors.corsWithOptions, (req, res, next) => {
 
-    // SETTING UP TOKEN for CLIENT (no need of sessions)
-    var token = authenticate.getToken({ _id: req.user._id });
+    // will return error value, user and info(carries message if error occurs)
+    passport.authenticate('local', (err, user, info) => {
+      //! if error is in authenticate
+      if (err) {
+        return next(err);
+      }
+      //! if user doesn't exists or password is incorrect
+      if (!user) {
+        res.statusCode = 401;
+        res.setHeader('Content-Type', 'application/json');
+        res.json({ success: false, status: "Login Unsuccessfull", err: info });
+      }
+
+      /**
+       ** When the login operation completes, user will be assigned to req.user.
+       * passport.authenticate() middleware invokes req.login() automatically.
+       * This function is primarily used when users sign up, during which req.login()
+       * can be invoked to automatically log in the newly registered user.
+       * */
+      req.logIn(user, (err) => {
+        if (err) {
+          res.statusCode = 401;
+          res.setHeader('Content-Type', 'application/json');
+          res.json({ success: false, status: "Login Unsuccessfull", err: "Could not login user" });
+        }
+
+        //! if we reached this point this means user is logged in
+
+        // SETTING UP TOKEN for CLIENT (no need of sessions)
+        var token = authenticate.getToken({ _id: req.user._id });
+
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json({ success: true, status: "Login Successful", token: token });
+
+      }); // end of req.logIn()
+
+    })(req, res, next);
+  });
 
 
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    res.json({ success: true, token: token, userHeader: req.user, status: "You are successfully logged in!" });
+//! check json token expired or not
+
+userRouter.route('/checkJWTToken')
+  .get(cors.corsWithOptions, (req, res, next) => {
+
+    //* will verify json webtoken
+    passport.authenticate('jwt', { session: false }, (err, user, info) => {
+      if (err) {
+        return next(err);
+      }
+
+      //* JWT verification token is expired
+      if (!user) {
+        res.statusCode = 401;
+        res.setHeader('Content-Type', 'application/json');
+        res.json({ status: 'JWT invalid!', success: false, err: info });
+      }
+      else {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json({ status: 'JWT valid!', success: true, user: user });
+      }
+    })(req, res, next); // end of passport.authenticate()
   });
 
 
 
-// facebook loging
+//! facebook loging
 // users/facebook/token (endpoint)
 
 userRouter.route('/facebook/token')
